@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "ssm_session_manager" {
       "kms:Decrypt",
     ]
     resources = [
-      var.kms_key_arn
+      var.kms_key_arn == null ? aws_kms_key.ssm_session_manager[0].arn : var.kms_key_arn
     ]
   }
 }
@@ -46,4 +46,14 @@ data "aws_iam_policy_document" "ssm_session_manager" {
 resource "aws_iam_role_policy_attachment" "ssm_session_manager" {
   role       = var.role_name
   policy_arn = aws_iam_policy.ssm_session_manager.arn
+}
+
+# Optionally generate KMS key if an existing KMS key is not provided
+resource "aws_kms_key" "ssm_session_manager" {
+  count = var.kms_key_arn == null ? 1 : 0
+
+  description              = "SSM Session Manager"
+  deletion_window_in_days  = 10
+  key_usage                = "ENCRYPT_DECRYPT"
+  customer_master_key_spec = "SYMMETRIC_DEFAULT"
 }
