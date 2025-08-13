@@ -4,17 +4,35 @@ Terraform module to create the policies for an instance to be able to run sessio
 
 # Examples
 ## Minimal with fixed name
+This example will create a KMS key.
+
 ```terraform
-provider "aws" {
-  version = "3.4.0"
-  region  = "eu-west-2"
+module "ssm" {
+  source  = "voquis/ssm-session-manager/aws"
+  version = "1.0.0"
+
+  name        = "my_ssm_session_manager"
+  role_name   = aws_iam_role.my_role.name
+}
+```
+
+## Own KMS key
+
+```terraform
+# KMS key
+resource "aws_kms_key" "example" {
+  description              = "SSM Session Manager"
+  deletion_window_in_days  = 10
+  key_usage                = "ENCRYPT_DECRYPT"
+  customer_master_key_spec = "SYMMETRIC_DEFAULT"
 }
 
-module "s3" {
+#
+module "ssm" {
   source  = "voquis/ssm-session-manager/aws"
-  version = "0.0.1"
+  version = "1.0.0"
 
-  kms_key_arn = aws_kms_key.my_kms.arn
+  kms_key_arn = aws_kms_key.example.arn
   name        = "my_ssm_session_manager"
   role_name   = aws_iam_role.my_role.name
 }

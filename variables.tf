@@ -1,6 +1,7 @@
 variable "kms_key_arn" {
   type        = string
-  description = "KMS Key ID used for session encryption"
+  description = "Optional KMS Key ID used for session encryption. If not provided, a KMS key is generated."
+  default     = null
 }
 
 variable "name" {
